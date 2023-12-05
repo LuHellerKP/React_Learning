@@ -9,7 +9,18 @@
  * We'll create new contacts by exporting an 'action' in our root route, wiring it up to the route config and changing our '<form>' to a React Router '<form>'.
  */
 //Create the action and change '<form>' to a React Router '<form>':
-import { Outlet, Link, useLoaderData, Form } from "react-router-dom";
+//Redirect to the new redord's edit page (Redirecting new records to the edit page):
+//Use 'NavLink' in the sidebar (Active Link Styling):
+//'useNavigation' to add global pending UI (Global Pending UI):
+import {
+  Outlet,
+  NavLink,
+  Link,
+  useLoaderData,
+  Form,
+  redirect,
+  useNavigation,
+} from "react-router-dom";
 //Loading Data
 /**
  * React Router has data conventions to get data into your route components easily.
@@ -22,7 +33,9 @@ export async function action() {
   //asynchronus function that creates a new contact and returns the created contact object.
   const contact = await createContact(); // calls a function named 'createContact' snf sddigns the returned contact object to the contact variable.
   //'await' keyword is used to pause the execution of the code until the 'createContact' function resolves with a promise.
-  return { contact }; //Returns an object containing the created contact object. The object is encoled in {} to create an object literal.
+  return redirect(`/contacts/${contact.id}/edit`); //redirect the user to the "/contacts/:contactId/edit" route -> the ':contactId' parameter is dynamically filled with the ID of the newly created contact.
+  //now the action function is responsible for creating a new contact and then redirecting the user to the edit page for that contact.
+  //return { contact }; //Returns an object containing the created contact object. The object is encoled in {} to create an object literal.
 } //Basically -> this function is responsible for creating a new contact and returning the created contact object.
 //It uses the 'await' keyword to handle asynchronus operations and enrures that the code waits for the contact creation process to complete before returning the contact object.
 export async function loader() {
@@ -34,6 +47,8 @@ export async function loader() {
 //creating the root layout component:
 export default function Root() {
   const { contacts } = useLoaderData();
+  const navigation = useNavigation(); // 'useNavigation' returns the current navigation state: it can be '"idle" | "submitting" | "loading"'
+
   return (
     <>
       <div id="sidebar">
@@ -79,16 +94,28 @@ export default function Root() {
             <ul>
               {contacts.map((contact) => (
                 <li key={contact.id}>
-                  <Link to={`contacts/${contact.id}`}>
-                    {contact.first || contact.last ? (
-                      <>
-                        {contact.first} {contact.last}
-                      </>
-                    ) : (
-                      <i>No Name</i>
-                    )}{" "}
-                    {contact.favorite && <span>★</span>}
-                  </Link>
+                  {/*Active Link Styling 
+                      We are passing a function to 'className'.
+                      When the user is at the URL in the 'NavLink', then 'isActive' will be true. When it's about to be active (the data is still loading) then 'isPending' will be true.
+                      This allows us to easily indicate where the user is, as well as provide immediate feedback on links that have been clicked but we're still wating for data to load. 
+                  */}
+                  <NavLink
+                    to={`contacts/${contact.id}`}
+                    className={({ isActive, isPending }) =>
+                      isActive ? "active" : isPending ? "pending" : ""
+                    }
+                  >
+                    <Link to={`contacts/${contact.id}`}>
+                      {contact.first || contact.last ? (
+                        <>
+                          {contact.first} {contact.last}
+                        </>
+                      ) : (
+                        <i>No Name</i>
+                      )}{" "}
+                      {contact.favorite && <span>★</span>}
+                    </Link>
+                  </NavLink>
                 </li>
               ))}
             </ul>
@@ -99,7 +126,10 @@ export default function Root() {
           )}
         </nav>
       </div>
-      <div id="detail">
+      <div
+        id="detail"
+        className={navigation.state === "loading" ? "loading" : ""} //The CSS will add a fade after a short delay. You could do anything you want though, like show a spinner or loading bar across the top.
+      >
         {/* The outlet is used to tell the root route WHERE we want it to render its child routes */}
         <Outlet />
       </div>
