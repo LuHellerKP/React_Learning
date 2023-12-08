@@ -1,36 +1,16 @@
-//The Contact Route UI
-/**
- * instead of a 404 "Not Found" page, we want to actually render something at the URLs we've linked to.
- */
-
-//Copy/pasted code:
-//Add a loader to the contact page and access data with 'useLoaderData' (URL Params in Loaders):
 import { Form, useLoaderData } from "react-router-dom";
 import { getContact } from "../contacts";
-
 export async function loader({ params }) {
   const contact = await getContact(params.contactId);
   return { contact };
 }
-
 export default function Contact() {
   const { contact } = useLoaderData();
-  /* This can be removed later.
-  const {contact} = {
-    first: "Your",
-    last: "Name",
-    avatar: "https://placekitten.com/g/200/200",
-    twitter: "your_handle",
-    notes: "Some notes",
-    favorite: true,
-  };
-*/
   return (
     <div id="contact">
       <div>
         <img key={contact.avatar} src={contact.avatar || null} />
       </div>
-
       <div>
         <h1>
           {contact.first || contact.last ? (
@@ -42,7 +22,6 @@ export default function Contact() {
           )}{" "}
           <Favorite contact={contact} />
         </h1>
-
         {contact.twitter && (
           <p>
             <a target="_blank" href={`https://twitter.com/${contact.twitter}`}>
@@ -50,9 +29,7 @@ export default function Contact() {
             </a>
           </p>
         )}
-
         {contact.notes && <p>{contact.notes}</p>}
-
         <div>
           <Form action="edit">
             <button type="submit">Edit</button>
@@ -73,7 +50,6 @@ export default function Contact() {
     </div>
   );
 }
-
 function Favorite({ contact }) {
   // yes, this is a `let` for later
   let favorite = contact.favorite;

@@ -23,16 +23,16 @@ export async function createContact() {
 }
 
 export async function getContact(id) {
-  await fakeNetwork(`contact:${id}`); //Start of the function with an asynchronus 'fakeNetwork' call, simulating a network request to fetch the contact data. 
-  let contacts = await localforage.getItem("contacts"); //'localforage.getItem("contacts")' is used to retrieves the stored contacts from local storage.
-  let contact = contacts.find(contact => contact.id === id); //Iterates through the retrieved contacts, searching for the one matching the provided id. 
-  return contact ?? null; //If the contact is found, it returns the corresponding object. Otherwise, it returns null.
+  await fakeNetwork(`contact:${id}`);
+  let contacts = await localforage.getItem("contacts");
+  let contact = contacts.find((contact) => contact.id === id);
+  return contact ?? null;
 }
 
 export async function updateContact(id, updates) {
   await fakeNetwork();
   let contacts = await localforage.getItem("contacts");
-  let contact = contacts.find(contact => contact.id === id);
+  let contact = contacts.find((contact) => contact.id === id);
   if (!contact) throw new Error("No contact found for", id);
   Object.assign(contact, updates);
   await set(contacts);
@@ -41,7 +41,7 @@ export async function updateContact(id, updates) {
 
 export async function deleteContact(id) {
   let contacts = await localforage.getItem("contacts");
-  let index = contacts.findIndex(contact => contact.id === id);
+  let index = contacts.findIndex((contact) => contact.id === id);
   if (index > -1) {
     contacts.splice(index, 1);
     await set(contacts);
@@ -67,7 +67,7 @@ async function fakeNetwork(key) {
   }
 
   fakeCache[key] = true;
-  return new Promise(res => {
+  return new Promise((res) => {
     setTimeout(res, Math.random() * 800);
   });
 }
