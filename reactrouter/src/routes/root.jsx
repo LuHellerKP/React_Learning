@@ -1,5 +1,9 @@
 //Global layout for the app (The Root Route)
+import { Outlet, Link, useLoaderData } from "react-router-dom";
+import { getContacts } from "../contacts";
+
 export default function Root() {
+  const { contacts } = useLoaderData();
   return (
     <>
       <div id="sidebar">
@@ -13,7 +17,7 @@ export default function Root() {
               type="search"
               name="q"
             />
-            <div id="search-spinner" aria-hidden hidden={true}/>
+            <div id="search-spinner" aria-hidden hidden={true} />
             <div className="sr-only" aria-live="polite"></div>
           </form>
           <form method="post">
@@ -21,15 +25,32 @@ export default function Root() {
           </form>
         </div>
         <nav>
+          {contacts.length ? (
             <ul>
-                <li>
-                    <a href={`/contacts/1`}>Your Name</a>
+              {contacts.map((contact) => (
+                <li key={contact.id}>
+                  <Link to={`contacts/${contact.id}`}>
+                    {contact.first || contact.last ? (
+                      <>
+                        {contact.first} {contact.last}
+                      </>
+                    ) : (
+                      <i>No Name</i>
+                    )}{" "}
+                    {contact.favorite && <span>★</span>}
+                  </Link>
                 </li>
-                <li>
-                    <a href={`/contacts/2`}>Your Friend</a>
-                </li>
+              ))}
             </ul>
+          ) : (
+            <p>
+              <i>No contacts</i>
+            </p>
+          )}
         </nav>
+      </div>
+      <div id="detail">
+        <Outlet />
       </div>
     </>
   );
